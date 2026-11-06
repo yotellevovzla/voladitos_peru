@@ -1,16 +1,22 @@
 const SUPABASE_URL = "https://gklquvthucityzgcamao.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_-p-YL6bWXAQGTddkmm9_mA_HgKlR_eM";
 
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-let map;
-let userMarker;
+let supabaseClient = null;
+let map = null;
+let userMarker = null;
 let currentLat = null;
 let currentLng = null;
 let viajeActivoId = null;
 
 window.addEventListener('DOMContentLoaded', async () => {
-  const { data: { user } } = await supabase.auth.getUser();
+  if (window.supabase && window.supabase.createClient) {
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  } else {
+    console.error("SDK de Supabase no cargado.");
+    return;
+  }
+
+  const { data: { user } } = await supabaseClient.auth.getUser();
   if (!user) {
     window.location.href = 'index.html';
     return;
@@ -19,7 +25,6 @@ window.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('user-name').innerText = user.user_metadata?.nombre_completo || user.email;
 
   map = L.map('map').setView([10.4806, -66.9036], 13);
-
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; OpenStreetMap contributors'
   }).addTo(map);
@@ -68,13 +73,13 @@ async function solicitarViaje() {
     return;
   }
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await supabaseClient.auth.getUser();
 
   const btnSolicitar = document.getElementById('btn-solicitar');
   btnSolicitar.disabled = true;
   btnSolicitar.innerText = "Enviando solicitud...";
 
-  const { data, error } = await supabase
+  const { data, error } = await supabaseClient
     .from('viajes')
     .insert([
       {
@@ -107,7 +112,7 @@ async function solicitarViaje() {
 }
 
 function escucharEstadoViaje(idViaje) {
-  supabase
+  supabaseClient
     .channel(`viaje-${idViaje}`)
     .on(
       'postgres_changes',
@@ -136,6 +141,8 @@ function escucharEstadoViaje(idViaje) {
 }
 
 async function logout() {
-  await supabase.auth.signOut();
+  if (supabaseClient) {
+    await supabaseClient.auth.signOut();
+  }
   window.location.href = 'index.html';
 }
