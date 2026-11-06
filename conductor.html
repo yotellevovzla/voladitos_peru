@@ -16,26 +16,30 @@
     #map { height: calc(100vh - 76px); width: 100%; z-index: 1; }
   </style>
 </head>
-<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col">
+<body class="bg-slate-900 text-slate-800 min-h-screen flex flex-col">
 
-  <header class="bg-white/90 backdrop-blur-md border-b border-slate-200/80 px-6 py-4 flex items-center justify-between z-[1001] shadow-xs">
+  <!-- Header Conductor con Datos de Identidad -->
+  <header class="bg-slate-900/90 backdrop-blur-xl border-b border-slate-800 px-6 py-3.5 flex items-center justify-between z-[1001] shadow-xl">
     <div class="flex items-center space-x-3">
-      <div class="w-9 h-9 bg-slate-900 rounded-xl flex items-center justify-center text-white font-black text-sm shadow-md">
-        ⚡
+      <div class="w-10 h-10 bg-slate-800 border border-slate-700 rounded-2xl flex items-center justify-center text-emerald-400 font-black text-base shadow-md">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
       </div>
       <div>
-        <h1 class="text-base font-extrabold text-slate-900 tracking-tight leading-tight">Voladitos Driver</h1>
-        <span class="text-[10px] text-emerald-600 font-bold uppercase tracking-wider">● En Línea</span>
+        <h1 class="text-sm font-black text-white tracking-tight leading-tight">Voladitos Driver</h1>
+        <span class="text-[10px] text-emerald-400 font-bold uppercase tracking-wider flex items-center space-x-1">
+          <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span>
+          <span>Disponible para carreras</span>
+        </span>
       </div>
     </div>
 
-    <!-- Contenedor de Datos del Conductor -->
+    <!-- Identificación del Conductor -->
     <div class="flex items-center space-x-4">
       <div class="hidden sm:flex flex-col text-right">
-        <span id="user-name" class="text-xs font-bold text-slate-800">Cargando...</span>
-        <span id="user-cedula" class="text-[10px] font-semibold text-blue-600">Cédula: ...</span>
+        <span id="user-name" class="text-xs font-black text-slate-200">Cargando...</span>
+        <span id="user-cedula" class="text-[10px] font-bold text-blue-400">Cédula: ...</span>
       </div>
-      <button onclick="logout()" class="text-xs bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-600 font-bold px-3.5 py-2.5 rounded-xl transition-all border border-slate-200">
+      <button onclick="logout()" class="text-xs bg-slate-800 hover:bg-red-500/20 text-slate-300 hover:text-red-400 font-bold px-4 py-2.5 rounded-xl transition-all border border-slate-700/80">
         Salir
       </button>
     </div>
@@ -44,11 +48,11 @@
   <div class="relative flex-1">
     <div id="map"></div>
 
-    <!-- Card Flotante para Viajes Disponibles -->
-    <div class="absolute bottom-6 left-1/2 -translate-x-1/2 w-11/12 max-w-md bg-white/95 backdrop-blur-xl p-6 rounded-3xl border border-white shadow-2xl z-[1000]">
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="text-sm font-extrabold text-slate-900 uppercase tracking-wider">Solicitudes Cercanas</h2>
-        <span class="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse"></span>
+    <!-- Lista de Carreras Flotante -->
+    <div class="absolute bottom-6 left-1/2 -translate-x-1/2 w-11/12 max-w-md bg-white/95 backdrop-blur-2xl p-6 rounded-3xl border border-white/80 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.4)] z-[1000]">
+      <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-100">
+        <h2 class="text-xs font-black text-slate-900 uppercase tracking-wider">Solicitudes Disponibles</h2>
+        <span class="w-2.5 h-2.5 bg-blue-600 rounded-full animate-ping"></span>
       </div>
       
       <div id="lista-viajes" class="space-y-3 max-h-64 overflow-y-auto pr-1">
