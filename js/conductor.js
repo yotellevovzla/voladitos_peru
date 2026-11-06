@@ -1,40 +1,48 @@
 const SUPABASE_URL = "https://gklquvthucityzgcamao.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_-p-YL6bWXAQGTddkmm9_mA_HgKlR_eM";
 
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-let map;
-let conductorMarker;
+let supabaseClient = null;
+let map = null;
+let conductorMarker = null;
 let userConductor = null;
 
 window.addEventListener('DOMContentLoaded', async () => {
-  const { data: { user } } = await supabase.auth.getUser();
+  // Inicializar el cliente usando una variable que no colisione con el SDK global
+  if (window.supabase && window.supabase.createClient) {
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  } else {
+    console.error("SDK de Supabase no cargado.");
+    return;
+  }
+
+  // Validar sesión
+  const { data: { user } } = await supabaseClient.auth.getUser();
   if (!user) {
     window.location.href = 'index.html';
     return;
   }
+
   userConductor = user;
   document.getElementById('user-name').innerText = user.user_metadata?.nombre_completo || user.email;
 
-  // 1. Validar el estado de la cuenta del conductor
-  const { data: perfil, error } = await supabase
+  // Validar estado de la cuenta en la tabla perfiles
+  const { data: perfil, error } = await supabaseClient
     .from('perfiles')
     .select('estado_cuenta')
     .eq('id', user.id)
     .single();
 
   if (error || !perfil) {
-    console.error("Error al obtener perfil:", error);
+    console.error("Error al obtener perfil del conductor:", error);
     return;
   }
 
-  // 2. Si la cuenta está pendiente o rechazada, bloqueamos el panel
   if (perfil.estado_cuenta !== 'aprobado') {
     mostrarPantallaBloqueo(perfil.estado_cuenta);
     return;
   }
 
-  // 3. Si está APROBADO, se inicia el mapa y las funciones de trabajo normalmente
+  // Inicializar mapa si la cuenta está APROBADA
   map = L.map('map').setView([10.4806, -66.9036], 13);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
@@ -71,7 +79,7 @@ function mostrarPantallaBloqueo(estado) {
 }
 
 async function cargarViajesPendientes() {
-  const { data: viajes, error } = await supabase
+  const { data: viajes, error } = await supabaseClient
     .from('viajes')
     .select('*, perfiles(nombre_completo)')
     .eq('estado', 'buscando');
@@ -88,7 +96,7 @@ function renderizarViajes(viajes) {
   const contenedor = document.getElementById('lista-viajes');
   contenedor.innerHTML = '';
 
-  if (viajes.length === 0) {
+  if (!viajes || viajes.length === 0) {
     contenedor.innerHTML = '<p class="text-sm text-slate-400 text-center py-4 font-medium">Esperando nuevas solicitudes de pasajeros...</p>';
     return;
   }
@@ -110,7 +118,7 @@ function renderizarViajes(viajes) {
 }
 
 function escucharNuevosViajes() {
-  supabase
+  supabaseClient
     .channel('viajes-disponibles')
     .on(
       'postgres_changes',
@@ -123,7 +131,7 @@ function escucharNuevosViajes() {
 }
 
 async function aceptarViaje(idViaje) {
-  const { error } = await supabase
+  const { error } = await supabaseClient
     .from('viajes')
     .update({
       conductor_id: userConductor.id,
@@ -141,6 +149,8 @@ async function aceptarViaje(idViaje) {
 }
 
 async function logout() {
-  await supabase.auth.signOut();
+  if (supabaseClient) {
+    await supabaseClient.auth.signOut();
+  }
   window.location.href = 'index.html';
 }
