@@ -1,40 +1,45 @@
-const SUPABASE_URL = "https://gklquvthucityzgcamao.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_-p-YL6bWXAQGTddkmm9_mA_HgKlR_eM";
-
-let supabaseClient = null;
-
-window.addEventListener('DOMContentLoaded', async () => {
-  if (window.supabase && window.supabase.createClient) {
-    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  } else {
-    console.error("SDK de Supabase no cargado.");
-    return;
-  }
-
-  // Verificar que haya sesión activa
-  const { data: { user } } = await supabaseClient.auth.getUser();
-  if (!user) {
-    alert("Debes iniciar sesión primero.");
-    window.location.href = 'index.html';
-    return;
-  }
-
-  // Precargar nombre si ya existe
-  if (user.user_metadata?.nombre_completo) {
-    document.getElementById('reg-nombre').value = user.user_metadata.nombre_completo;
-  }
-
-  const form = document.getElementById('form-registro-conductor');
-  form.addEventListener('submit', guardarDatosConductor);
-});
-
 async function guardarDatosConductor(event) {
   event.preventDefault();
-  showMessage("Guardando información del conductor...", "info");
+  showMessage("Subiendo documentos y guardando perfil...", "info");
 
   const { data: { user } } = await supabaseClient.auth.getUser();
   if (!user) return;
 
+  // Función auxiliar para subir un archivo individual al Storage de Supabase
+  async function subirArchivo(fileInputId, nombreCarpeta) {
+    const fileInput = document.getElementById(fileInputId);
+    if (!fileInput.files || fileInput.files.length === 0) return null;
+    
+    const file = fileInput.files[0];
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${user.id}_${nombreCarpeta}_${Date.now()}.${fileExt}`;
+    const filePath = `${fileName}`;
+
+    const { error: uploadError } = await supabaseClient.storage
+      .from('documentos-conductores')
+      .upload(filePath, file);
+
+    if (uploadError) {
+      console.error(`Error subiendo ${nombreCarpeta}:`, uploadError.message);
+      return null;
+    }
+
+    // Obtener URL pública de la imagen
+    const { data } = supabaseClient.storage
+      .from('documentos-conductores')
+      .getPublicUrl(filePath);
+
+    return data.publicUrl;
+  }
+
+  // Subir todas las fotos requeridas de forma simultánea
+  const urlCedula = await subirArchivo('file-cedula', 'cedula');
+  const urlLicencia = await subirArchivo('file-licencia', 'licencia');
+  const urlCarnet = await subirArchivo('file-carnet', 'carnet');
+  const urlTitulo = await subirArchivo('file-titulo', 'titulo');
+  const urlVehiculo = await subirArchivo('file-vehiculo', 'vehiculo');
+
+  // Objeto con toda la información unificada
   const datosActualizacion = {
     nombre_completo: document.getElementById('reg-nombre').value,
     cedula: document.getElementById('reg-cedula').value,
@@ -47,7 +52,12 @@ async function guardarDatosConductor(event) {
     vehiculo_color: document.getElementById('veh-color').value,
     vehiculo_anio: document.getElementById('veh-anio').value,
     vehiculo_titulo: document.getElementById('veh-titulo').value,
-    estado_cuenta: 'pendiente' // Queda pendiente de aprobación por el admin
+    foto_cedula: urlCedula,
+    foto_licencia: urlLicencia,
+    foto_carnet: urlCarnet,
+    foto_titulo: urlTitulo,
+    foto_vehiculo: urlVehiculo,
+    estado_cuenta: 'pendiente'
   };
 
   const { error } = await supabaseClient
@@ -56,28 +66,14 @@ async function guardarDatosConductor(event) {
     .eq('id', user.id);
 
   if (error) {
-    console.error("Error al guardar:", error);
+    console.error("Error al guardar en base de datos:", error);
     showMessage("Error al guardar: " + error.message, "error");
     return;
   }
 
-  showMessage("¡Datos guardados con éxito! Redirigiendo a tu panel...", "success");
+  showMessage("¡Registro y documentos enviados con éxito! Redirigiendo...", "success");
 
   setTimeout(() => {
     window.location.href = 'conductor.html';
   }, 1500);
-}
-
-function showMessage(msg, type) {
-  const box = document.getElementById('status-message');
-  box.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700', 'bg-slate-100', 'text-slate-700');
-  
-  if (type === 'error') {
-    box.classList.add('bg-red-100', 'text-red-700');
-  } else if (type === 'success') {
-    box.classList.add('bg-green-100', 'text-green-700');
-  } else {
-    box.classList.add('bg-slate-100', 'text-slate-700');
-  }
-  box.innerText = msg;
 }
