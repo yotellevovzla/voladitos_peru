@@ -79,16 +79,24 @@ function mostrarPantallaBloqueo(estado) {
   const esPendiente = estado === 'pendiente';
   
   contenedor.innerHTML = `
-    <div class="text-center py-6 px-2">
-      <div class="text-4xl mb-3">${esPendiente ? '⌛' : '🚫'}</div>
-      <h3 class="text-xs font-extrabold ${esPendiente ? 'text-blue-700' : 'text-red-600'} uppercase tracking-wider">
-        ${esPendiente ? 'Cuenta en Proceso de Revisión' : 'Solicitud No Aprobada'}
+    <div class="text-center py-6 px-4 bg-slate-50 border border-slate-200/80 rounded-2xl shadow-xs">
+      <div class="inline-flex items-center justify-center w-12 h-12 bg-orange-50 border border-orange-200 text-orange-600 rounded-2xl mb-3 shadow-xs animate-pulse">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
+      <h3 class="text-xs font-black text-slate-900 uppercase tracking-wider">
+        ${esPendiente ? 'Validación en Proceso' : 'Solicitud No Aprobada'}
       </h3>
-      <p class="text-xs text-slate-500 mt-2 leading-relaxed font-medium">
+      <p class="text-xs text-slate-500 mt-1.5 leading-relaxed font-medium">
         ${esPendiente 
-          ? 'Tus documentos e información vehicular están siendo validados por nuestro equipo. Te notificaremos al activarse tu cuenta.' 
-          : 'Lamentablemente tu solicitud de conductor no cumple con los requisitos del sistema.'}
+          ? 'Tus documentos e información vehicular están siendo verificados por seguridad. Tu acceso se activará en breve.' 
+          : 'Lamentablemente tu perfil no cumple con los estándares requeridos.'}
       </p>
+      <div class="mt-3 inline-flex items-center space-x-1.5 text-[10px] bg-orange-100 text-orange-700 font-extrabold px-3 py-1 rounded-full border border-orange-200">
+        <span class="w-1.5 h-1.5 bg-orange-500 rounded-full animate-ping"></span>
+        <span>Sistemas seguros activos</span>
+      </div>
     </div>
   `;
 }
@@ -120,13 +128,13 @@ function renderizarViajes(viajes) {
 
   viajes.forEach(v => {
     const item = document.createElement('div');
-    item.className = "bg-slate-50 p-4 rounded-2xl border border-slate-200/80 flex justify-between items-center shadow-xs transition-all hover:border-blue-200";
+    item.className = "bg-slate-50 p-4 rounded-2xl border border-slate-200/80 flex justify-between items-center shadow-xs transition-all hover:border-orange-300";
     item.innerHTML = `
       <div>
-        <p class="text-xs font-extrabold text-slate-800">Destino: ${v.destino_direccion}</p>
-        <p class="text-xs font-extrabold text-blue-600 mt-0.5">Tarifa: $${v.precio}</p>
+        <p class="text-xs font-extrabold text-slate-900">Destino: ${v.destino_direccion}</p>
+        <p class="text-xs font-extrabold text-orange-600 mt-0.5">Tarifa: $${v.precio}</p>
       </div>
-      <button onclick="aceptarViaje('${v.id}')" class="bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs px-4 py-2.5 rounded-xl transition-all shadow-md shadow-blue-600/25 active:scale-[0.98]">
+      <button onclick="aceptarViaje('${v.id}')" class="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-black text-xs px-4 py-2.5 rounded-xl transition-all shadow-md shadow-orange-500/25 active:scale-[0.98]">
         Aceptar
       </button>
     `;
