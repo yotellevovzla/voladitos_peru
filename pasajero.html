@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Voladitos - Pedir Viaje</title>
 
+  <!-- Metadatos PWA -->
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#2563eb">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Voladitos">
+
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -41,7 +48,7 @@
   <div class="relative flex-1">
     <div id="map"></div>
 
-    <!-- Panel de Solicitud Flotante con Sombras Profundas -->
+    <!-- Panel de Solicitud Flotante -->
     <div class="absolute bottom-6 left-1/2 -translate-x-1/2 w-11/12 max-w-md bg-white/95 backdrop-blur-2xl p-6 rounded-3xl border border-white/80 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.4)] z-[1000]">
       
       <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
@@ -79,5 +86,12 @@
   </div>
 
   <script src="js/pasajero.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(err => console.error('SW Error:', err));
+      });
+    }
+  </script>
 </body>
 </html>
