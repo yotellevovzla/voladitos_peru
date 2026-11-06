@@ -7,7 +7,6 @@ let conductorMarker = null;
 let userConductor = null;
 
 window.addEventListener('DOMContentLoaded', async () => {
-  // Inicializar el cliente usando una variable que no colisione con el SDK global
   if (window.supabase && window.supabase.createClient) {
     supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   } else {
@@ -25,10 +24,10 @@ window.addEventListener('DOMContentLoaded', async () => {
   userConductor = user;
   document.getElementById('user-name').innerText = user.user_metadata?.nombre_completo || user.email;
 
-  // Validar estado de la cuenta en la tabla perfiles
+  // Consultar perfil del conductor (incluyendo datos personales y del vehículo)
   const { data: perfil, error } = await supabaseClient
     .from('perfiles')
-    .select('estado_cuenta')
+    .select('estado_cuenta, cedula, vehiculo_placa')
     .eq('id', user.id)
     .single();
 
@@ -37,12 +36,20 @@ window.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
+  // 1. SI NO HA LLENADO SUS DATOS PERSONALES O VEHÍCULO: Redirigirlo al formulario
+  if (!perfil.cedula || !perfil.vehiculo_placa) {
+    alert("Por favor completa los datos de tu vehículo y personales para continuar.");
+    window.location.href = 'registro_conductor.html';
+    return;
+  }
+
+  // 2. SI YA LOS LLENÓ PERO ESTÁ PENDIENTE DE APROBACIÓN
   if (perfil.estado_cuenta !== 'aprobado') {
     mostrarPantallaBloqueo(perfil.estado_cuenta);
     return;
   }
 
-  // Inicializar mapa si la cuenta está APROBADA
+  // 3. SI ESTÁ APROBADO Y CON DATOS: Inicializar mapa y panel de trabajo
   map = L.map('map').setView([10.4806, -66.9036], 13);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
@@ -71,9 +78,12 @@ function mostrarPantallaBloqueo(estado) {
       </h3>
       <p class="text-xs text-slate-500 mt-2 leading-relaxed">
         ${esPendiente 
-          ? 'Gracias por unirte a Voladitos. Tu documentación está siendo validada por nuestro equipo. Te notificaremos al activarse tu cuenta.' 
+          ? 'Gracias por registrar tus datos. Tu documentación está siendo validada por nuestro equipo. Te notificaremos al activarse tu cuenta.' 
           : 'Lamentablemente tu solicitud de conductor no cumple con los requisitos mínimos.'}
       </p>
+      <a href="registro_conductor.html" class="inline-block mt-4 text-xs bg-blue-50 text-blue-600 font-bold px-4 py-2 rounded-xl border border-blue-200 hover:bg-blue-100 transition-all">
+        Modificar mis datos
+      </a>
     </div>
   `;
 }
