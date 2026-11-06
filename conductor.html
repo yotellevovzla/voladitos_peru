@@ -7,7 +7,7 @@
 
   <!-- Metadatos PWA -->
   <link rel="manifest" href="./manifest.json">
-  <meta name="theme-color" content="#2563eb">
+  <meta name="theme-color" content="#ea580c">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Voladitos">
@@ -25,26 +25,24 @@
 </head>
 <body class="bg-slate-900 text-slate-800 min-h-screen flex flex-col">
 
-  <!-- Header Conductor con Datos de Identidad -->
   <header class="bg-slate-900/90 backdrop-blur-xl border-b border-slate-800 px-6 py-3.5 flex items-center justify-between z-[1001] shadow-xl">
     <div class="flex items-center space-x-3">
-      <div class="w-10 h-10 bg-slate-800 border border-slate-700 rounded-2xl flex items-center justify-center text-emerald-400 font-black text-base shadow-md">
+      <div class="w-10 h-10 bg-gradient-to-tr from-orange-600 to-amber-500 rounded-2xl flex items-center justify-center text-white font-black text-base shadow-lg shadow-orange-600/30 border border-orange-400/20">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
       </div>
       <div>
         <h1 class="text-sm font-black text-white tracking-tight leading-tight">Voladitos Driver</h1>
-        <span class="text-[10px] text-emerald-400 font-bold uppercase tracking-wider flex items-center space-x-1">
-          <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span>
+        <span class="text-[10px] text-orange-400 font-bold uppercase tracking-wider flex items-center space-x-1">
+          <span class="w-1.5 h-1.5 bg-orange-400 rounded-full animate-pulse"></span>
           <span>Disponible para carreras</span>
         </span>
       </div>
     </div>
 
-    <!-- Identificación del Conductor -->
     <div class="flex items-center space-x-4">
       <div class="hidden sm:flex flex-col text-right">
         <span id="user-name" class="text-xs font-black text-slate-200">Cargando...</span>
-        <span id="user-cedula" class="text-[10px] font-bold text-blue-400">Cédula: ...</span>
+        <span id="user-cedula" class="text-[10px] font-bold text-orange-400">Cédula: ...</span>
       </div>
       <button onclick="logout()" class="text-xs bg-slate-800 hover:bg-red-500/20 text-slate-300 hover:text-red-400 font-bold px-4 py-2.5 rounded-xl transition-all border border-slate-700/80">
         Salir
@@ -55,11 +53,10 @@
   <div class="relative flex-1">
     <div id="map"></div>
 
-    <!-- Lista de Carreras Flotante -->
-    <div class="absolute bottom-6 left-1/2 -translate-x-1/2 w-11/12 max-w-md bg-white/95 backdrop-blur-2xl p-6 rounded-3xl border border-white/80 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.4)] z-[1000]">
-      <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-100">
+    <div class="absolute bottom-6 left-1/2 -translate-x-1/2 w-11/12 max-w-md bg-slate-50/95 backdrop-blur-2xl p-6 rounded-3xl border border-white/80 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.4)] z-[1000]">
+      <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-200/80">
         <h2 class="text-xs font-black text-slate-900 uppercase tracking-wider">Solicitudes Disponibles</h2>
-        <span class="w-2.5 h-2.5 bg-blue-600 rounded-full animate-ping"></span>
+        <span class="w-2.5 h-2.5 bg-orange-600 rounded-full animate-ping"></span>
       </div>
       
       <div id="lista-viajes" class="space-y-3 max-h-64 overflow-y-auto pr-1">
