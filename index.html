@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Voladitos - Iniciar Sesión</title>
 
-  <!-- 1. Cargar Tailwind CSS desde CDN -->
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- 2. Cargar SDK de Supabase JS desde CDN -->
+  <!-- Supabase JS CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex items-center justify-center p-4">
@@ -90,131 +90,6 @@
 
   </div>
 
-  <script>
-    // -------------------------------------------------------------
-    // CONFIGURACIÓN DE SUPABASE
-    // Reemplaza con tus credenciales de la consola de Supabase
-    // -------------------------------------------------------------
-    const SUPABASE_URL = "https://TU_PROYECTO.supabase.co";
-    const SUPABASE_ANON_KEY = "TU_LLAVE_ANONIMA";
-
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    // -------------------------------------------------------------
-    // INTERACTIVIDAD DE PESTAÑAS (UI)
-    // -------------------------------------------------------------
-    function switchTab(tab) {
-      const formLogin = document.getElementById('form-login');
-      const formRegister = document.getElementById('form-register');
-      const btnLogin = document.getElementById('btn-tab-login');
-      const btnRegister = document.getElementById('btn-tab-register');
-      hideMessage();
-
-      if (tab === 'login') {
-        formLogin.classList.remove('hidden');
-        formRegister.classList.add('hidden');
-        btnLogin.className = "flex-1 py-2 text-sm font-semibold rounded-md bg-amber-400 text-slate-900 transition-all";
-        btnRegister.className = "flex-1 py-2 text-sm font-semibold rounded-md text-slate-400 hover:text-slate-200 transition-all";
-      } else {
-        formRegister.classList.remove('hidden');
-        formLogin.classList.add('hidden');
-        btnRegister.className = "flex-1 py-2 text-sm font-semibold rounded-md bg-amber-400 text-slate-900 transition-all";
-        btnLogin.className = "flex-1 py-2 text-sm font-semibold rounded-md text-slate-400 hover:text-slate-200 transition-all";
-      }
-    }
-
-    // -------------------------------------------------------------
-    // MANEJO DE REGISTRO
-    // -------------------------------------------------------------
-    async function handleRegister(event) {
-      event.preventDefault();
-      showMessage('Registrando usuario en Voladitos...', 'info');
-
-      const name = document.getElementById('reg-name').value;
-      const email = document.getElementById('reg-email').value;
-      const password = document.getElementById('reg-password').value;
-      const role = document.querySelector('input[name="role"]:checked').value;
-
-      // 1. Crear el usuario en Auth de Supabase (el trigger SQL creará su perfil automáticamente)
-      const { data, error } = await supabase.auth.signUp({
-        email: email,
-        password: password,
-        options: {
-          data: {
-            nombre_completo: name,
-            rol: role
-          }
-        }
-      });
-
-      if (error) {
-        showMessage(error.message, 'error');
-        return;
-      }
-
-      showMessage('¡Registro exitoso! Ya puedes iniciar sesión.', 'success');
-      switchTab('login');
-    }
-
-    // -------------------------------------------------------------
-    // MANEJO DE INICIO DE SESIÓN
-    // -------------------------------------------------------------
-    async function handleLogin(event) {
-      event.preventDefault();
-      showMessage('Iniciando sesión...', 'info');
-
-      const email = document.getElementById('login-email').value;
-      const password = document.getElementById('login-password').value;
-
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: email,
-        password: password
-      });
-
-      if (error) {
-        showMessage(error.message, 'error');
-        return;
-      }
-
-      // Consultar el rol directamente de nuestra tabla "perfiles" para mayor seguridad
-      const { data: perfil, error: perfilError } = await supabase
-        .from('perfiles')
-        .select('rol, nombre_completo')
-        .eq('id', data.user.id)
-        .single();
-
-      const rol = perfil ? perfil.rol : (data.user.user_metadata?.rol || 'pasajero');
-      
-      showMessage(`Bienvenido a Voladitos. Redirigiendo...`, 'success');
-
-      // Redirección según rol tras iniciar sesión
-      setTimeout(() => {
-        if (rol === 'conductor') {
-          window.location.href = 'conductor.html';
-        } else {
-          window.location.href = 'pasajero.html';
-        }
-      }, 1200);
-    }
-
-    // Auxiliar para mostrar mensajes en pantalla
-    function showMessage(msg, type) {
-      const box = document.getElementById('status-message');
-      box.classList.remove('hidden', 'bg-red-900/50', 'text-red-300', 'bg-green-900/50', 'text-green-300', 'bg-slate-700', 'text-slate-200');
-      
-      if (type === 'error') {
-        box.classList.add('bg-red-900/50', 'text-red-300');
-      } else if (type === 'success') {
-        box.classList.add('bg-green-900/50', 'text-green-300');
-      } else {
-        box.classList.add('bg-slate-700', 'text-slate-200');
-      }
-      box.innerText = msg;
-    }
-
-    function hideMessage() {
-      document.getElementById('status-message').classList.add('hidden');
-    }
-  </script>
+  <script src="js/index.js"></script>
 </body>
 </html>
