@@ -1,14 +1,15 @@
-const CACHE_NAME = 'voladitos-v1';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './pasajero.html',
   './conductor.html',
   './registro_conductor.html',
+  './admin.html',
   './js/index.js',
   './js/pasajero.js',
   './js/conductor.js',
   './js/registro_conductor.js',
+  './js/admin.js',
   'https://cdn.tailwindcss.com',
   'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
