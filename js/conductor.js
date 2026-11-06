@@ -1,3 +1,4 @@
+// CONFIGURACIÓN DE SUPABASE
 const SUPABASE_URL = "https://gklquvthucityzgcamao.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_-p-YL6bWXAQGTddkmm9_mA_HgKlR_eM";
 
@@ -7,6 +8,7 @@ let conductorMarker = null;
 let userConductor = null;
 
 window.addEventListener('DOMContentLoaded', async () => {
+  // Inicializar cliente Supabase evitando colisión con el SDK global
   if (window.supabase && window.supabase.createClient) {
     supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   } else {
@@ -14,7 +16,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
-  // Validar sesión
+  // Validar sesión activa
   const { data: { user } } = await supabaseClient.auth.getUser();
   if (!user) {
     window.location.href = 'index.html';
@@ -22,12 +24,11 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 
   userConductor = user;
-  document.getElementById('user-name').innerText = user.user_metadata?.nombre_completo || user.email;
 
-  // Consultar perfil del conductor (incluyendo datos personales y del vehículo)
+  // Consultar perfil completo del conductor (nombre, cédula, estado y vehículo)
   const { data: perfil, error } = await supabaseClient
     .from('perfiles')
-    .select('estado_cuenta, cedula, vehiculo_placa')
+    .select('estado_cuenta, cedula, vehiculo_placa, nombre_completo')
     .eq('id', user.id)
     .single();
 
@@ -36,22 +37,27 @@ window.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
-  // 1. SI NO HA LLENADO SUS DATOS PERSONALES O VEHÍCULO: Redirigirlo al formulario
-  if (!perfil.cedula || !perfil.vehiculo_placa) {
-    alert("Por favor completa los datos de tu vehículo y personales para continuar.");
-    window.location.href = 'registro_conductor.html';
-    return;
-  }
+  // Mostrar el nombre y la cédula en la parte superior del header
+  const nombreDisplay = perfil.nombre_completo || user.user_metadata?.nombre_completo || user.email;
+  const cedulaDisplay = perfil.cedula ? `C.I: ${perfil.cedula}` : 'Sin cédula registrada';
+  
+  const elName = document.getElementById('user-name');
+  const elCedula = document.getElementById('user-cedula');
+  
+  if (elName) elName.innerText = nombreDisplay;
+  if (elCedula) elCedula.innerText = cedulaDisplay;
 
-  // 2. SI YA LOS LLENÓ PERO ESTÁ PENDIENTE DE APROBACIÓN
+  // Validar estado de la cuenta del conductor
   if (perfil.estado_cuenta !== 'aprobado') {
     mostrarPantallaBloqueo(perfil.estado_cuenta);
     return;
   }
 
-  // 3. SI ESTÁ APROBADO Y CON DATOS: Inicializar mapa y panel de trabajo
+  // Inicializar mapa interactivo Leaflet si la cuenta está APROBADA
   map = L.map('map').setView([10.4806, -66.9036], 13);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
 
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(position => {
@@ -68,22 +74,21 @@ window.addEventListener('DOMContentLoaded', async () => {
 
 function mostrarPantallaBloqueo(estado) {
   const contenedor = document.getElementById('lista-viajes');
+  if (!contenedor) return;
+  
   const esPendiente = estado === 'pendiente';
   
   contenedor.innerHTML = `
     <div class="text-center py-6 px-2">
       <div class="text-4xl mb-3">${esPendiente ? '⌛' : '🚫'}</div>
-      <h3 class="text-base font-bold ${esPendiente ? 'text-blue-700' : 'text-red-600'}">
+      <h3 class="text-xs font-extrabold ${esPendiente ? 'text-blue-700' : 'text-red-600'} uppercase tracking-wider">
         ${esPendiente ? 'Cuenta en Proceso de Revisión' : 'Solicitud No Aprobada'}
       </h3>
-      <p class="text-xs text-slate-500 mt-2 leading-relaxed">
+      <p class="text-xs text-slate-500 mt-2 leading-relaxed font-medium">
         ${esPendiente 
-          ? 'Gracias por registrar tus datos. Tu documentación está siendo validada por nuestro equipo. Te notificaremos al activarse tu cuenta.' 
-          : 'Lamentablemente tu solicitud de conductor no cumple con los requisitos mínimos.'}
+          ? 'Tus documentos e información vehicular están siendo validados por nuestro equipo. Te notificaremos al activarse tu cuenta.' 
+          : 'Lamentablemente tu solicitud de conductor no cumple con los requisitos del sistema.'}
       </p>
-      <a href="registro_conductor.html" class="inline-block mt-4 text-xs bg-blue-50 text-blue-600 font-bold px-4 py-2 rounded-xl border border-blue-200 hover:bg-blue-100 transition-all">
-        Modificar mis datos
-      </a>
     </div>
   `;
 }
@@ -104,22 +109,24 @@ async function cargarViajesPendientes() {
 
 function renderizarViajes(viajes) {
   const contenedor = document.getElementById('lista-viajes');
+  if (!contenedor) return;
+  
   contenedor.innerHTML = '';
 
   if (!viajes || viajes.length === 0) {
-    contenedor.innerHTML = '<p class="text-sm text-slate-400 text-center py-4 font-medium">Esperando nuevas solicitudes de pasajeros...</p>';
+    contenedor.innerHTML = '<p class="text-xs text-slate-400 text-center py-4 font-semibold">Esperando nuevas solicitudes de pasajeros...</p>';
     return;
   }
 
   viajes.forEach(v => {
     const item = document.createElement('div');
-    item.className = "bg-slate-50 p-4 rounded-xl border border-slate-200 flex justify-between items-center shadow-xs";
+    item.className = "bg-slate-50 p-4 rounded-2xl border border-slate-200/80 flex justify-between items-center shadow-xs transition-all hover:border-blue-200";
     item.innerHTML = `
       <div>
-        <p class="text-sm font-bold text-slate-800">Destino: ${v.destino_direccion}</p>
-        <p class="text-xs font-semibold text-blue-700">Tarifa estimada: $${v.precio}</p>
+        <p class="text-xs font-extrabold text-slate-800">Destino: ${v.destino_direccion}</p>
+        <p class="text-xs font-extrabold text-blue-600 mt-0.5">Tarifa: $${v.precio}</p>
       </div>
-      <button onclick="aceptarViaje('${v.id}')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition-all shadow-md shadow-blue-600/20">
+      <button onclick="aceptarViaje('${v.id}')" class="bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs px-4 py-2.5 rounded-xl transition-all shadow-md shadow-blue-600/25 active:scale-[0.98]">
         Aceptar
       </button>
     `;
