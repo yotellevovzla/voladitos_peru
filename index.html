@@ -13,22 +13,22 @@
     
     <!-- Encabezado -->
     <div class="text-center mb-8">
-      <h1 class="text-3xl font-extrabold text-blue-700 tracking-tight">Voladitos</h1>
+      <h1 class="text-3xl font-extrabold text-blue-700 tracking-tight">Voladitos 🚗💨</h1>
       <p class="text-sm text-slate-500 mt-2">Muévete rápido, viaja seguro con estilo</p>
     </div>
 
     <!-- Pestañas -->
     <div class="flex bg-slate-100 rounded-xl p-1 mb-6 border border-slate-200">
-      <button id="btn-tab-login" onclick="switchTab('login')" class="flex-1 py-2 text-sm font-semibold rounded-lg bg-blue-600 text-white shadow-sm transition-all">
+      <button id="btn-tab-login" type="button" class="flex-1 py-2 text-sm font-semibold rounded-lg bg-blue-600 text-white shadow-sm transition-all">
         Iniciar Sesión
       </button>
-      <button id="btn-tab-register" onclick="switchTab('register')" class="flex-1 py-2 text-sm font-semibold rounded-lg text-slate-600 hover:text-slate-900 transition-all">
+      <button id="btn-tab-register" type="button" class="flex-1 py-2 text-sm font-semibold rounded-lg text-slate-600 hover:text-slate-900 transition-all">
         Registrarse
       </button>
     </div>
 
     <!-- Formulario Login -->
-    <form id="form-login" onsubmit="handleLogin(event)" class="space-y-4">
+    <form id="form-login" class="space-y-4">
       <div>
         <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Correo Electrónico</label>
         <input type="email" id="login-email" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 focus:outline-none focus:border-blue-600 focus:bg-white transition-all" placeholder="tu@email.com" />
@@ -45,7 +45,7 @@
     </form>
 
     <!-- Formulario Registro -->
-    <form id="form-register" onsubmit="handleRegister(event)" class="space-y-4 hidden">
+    <form id="form-register" class="space-y-4 hidden">
       <div>
         <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Nombre Completo</label>
         <input type="text" id="reg-name" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 focus:outline-none focus:border-blue-600 focus:bg-white transition-all" placeholder="Carlos Pérez" />
@@ -84,6 +84,6 @@
 
   </div>
 
-  <script src="js/index.js"></script>
+  <script src="./js/index.js"></script>
 </body>
 </html>
