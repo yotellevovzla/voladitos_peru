@@ -16,6 +16,25 @@ window.addEventListener('DOMContentLoaded', async () => {
   userConductor = user;
   document.getElementById('user-name').innerText = user.user_metadata?.nombre_completo || user.email;
 
+  // 1. Validar el estado de la cuenta del conductor
+  const { data: perfil, error } = await supabase
+    .from('perfiles')
+    .select('estado_cuenta')
+    .eq('id', user.id)
+    .single();
+
+  if (error || !perfil) {
+    console.error("Error al obtener perfil:", error);
+    return;
+  }
+
+  // 2. Si la cuenta está pendiente o rechazada, bloqueamos el panel
+  if (perfil.estado_cuenta !== 'aprobado') {
+    mostrarPantallaBloqueo(perfil.estado_cuenta);
+    return;
+  }
+
+  // 3. Si está APROBADO, se inicia el mapa y las funciones de trabajo normalmente
   map = L.map('map').setView([10.4806, -66.9036], 13);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
@@ -31,6 +50,25 @@ window.addEventListener('DOMContentLoaded', async () => {
   cargarViajesPendientes();
   escucharNuevosViajes();
 });
+
+function mostrarPantallaBloqueo(estado) {
+  const contenedor = document.getElementById('lista-viajes');
+  const esPendiente = estado === 'pendiente';
+  
+  contenedor.innerHTML = `
+    <div class="text-center py-6 px-2">
+      <div class="text-4xl mb-3">${esPendiente ? '⌛' : '🚫'}</div>
+      <h3 class="text-base font-bold ${esPendiente ? 'text-blue-700' : 'text-red-600'}">
+        ${esPendiente ? 'Cuenta en Proceso de Revisión' : 'Solicitud No Aprobada'}
+      </h3>
+      <p class="text-xs text-slate-500 mt-2 leading-relaxed">
+        ${esPendiente 
+          ? 'Gracias por unirte a Voladitos. Tu documentación está siendo validada por nuestro equipo. Te notificaremos al activarse tu cuenta.' 
+          : 'Lamentablemente tu solicitud de conductor no cumple con los requisitos mínimos.'}
+      </p>
+    </div>
+  `;
+}
 
 async function cargarViajesPendientes() {
   const { data: viajes, error } = await supabase
@@ -51,19 +89,19 @@ function renderizarViajes(viajes) {
   contenedor.innerHTML = '';
 
   if (viajes.length === 0) {
-    contenedor.innerHTML = '<p class="text-sm text-slate-400 text-center py-4">Esperando nuevas solicitudes de pasajeros...</p>';
+    contenedor.innerHTML = '<p class="text-sm text-slate-400 text-center py-4 font-medium">Esperando nuevas solicitudes de pasajeros...</p>';
     return;
   }
 
   viajes.forEach(v => {
     const item = document.createElement('div');
-    item.className = "bg-slate-900 p-4 rounded-xl border border-slate-700 flex justify-between items-center";
+    item.className = "bg-slate-50 p-4 rounded-xl border border-slate-200 flex justify-between items-center shadow-xs";
     item.innerHTML = `
       <div>
-        <p class="text-sm font-bold text-slate-200">Destino: ${v.destino_direccion}</p>
-        <p class="text-xs text-amber-400">Tarifa estimada: $${v.precio}</p>
+        <p class="text-sm font-bold text-slate-800">Destino: ${v.destino_direccion}</p>
+        <p class="text-xs font-semibold text-blue-700">Tarifa estimada: $${v.precio}</p>
       </div>
-      <button onclick="aceptarViaje('${v.id}')" class="bg-green-600 hover:bg-green-500 text-white font-bold text-xs px-4 py-2 rounded-lg transition-all">
+      <button onclick="aceptarViaje('${v.id}')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition-all shadow-md shadow-blue-600/20">
         Aceptar
       </button>
     `;
