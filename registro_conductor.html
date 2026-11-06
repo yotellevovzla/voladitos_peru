@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Voladitos - Registro de Conductor</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex items-center justify-center p-4">
+
+  <div class="w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-slate-200 p-8 my-8">
+    
+    <div class="text-center mb-6">
+      <h1 class="text-2xl font-extrabold text-blue-700 tracking-tight">Registro de Conductor 🚗💨</h1>
+      <p class="text-sm text-slate-500 mt-1">Completa tus datos personales y los de tu vehículo para unirte a Voladitos</p>
+    </div>
+
+    <form id="form-registro-conductor" class="space-y-6">
+      
+      <!-- Sección: Datos Personales -->
+      <div>
+        <h2 class="text-sm font-bold text-blue-600 uppercase tracking-wider mb-3 border-b border-slate-100 pb-1">1. Datos Personales</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Nombre Completo</label>
+            <input type="text" id="reg-nombre" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-blue-600 focus:bg-white transition-all" placeholder="Carlos Pérez" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Cédula / Identidad</label>
+            <input type="text" id="reg-cedula" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-blue-600 focus:bg-white transition-all" placeholder="V-12345678" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Fecha de Nacimiento</label>
+            <input type="date" id="reg-fnac" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-blue-600 focus:bg-white transition-all" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Nro. de Licencia</label>
+            <input type="text" id="reg-licencia" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-blue-600 focus:bg-white transition-all" placeholder="Licencia de conducir" />
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Nro. de Carnet (Circulación / Conducción)</label>
+            <input type="text" id="reg-carnet" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-blue-600 focus:bg-white transition-all" placeholder="Número de carnet" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Sección: Datos del Vehículo -->
+      <div>
+        <h2 class="text-sm font-bold text-blue-600 uppercase tracking-wider mb-3 border-b border-slate-100 pb-1">2. Datos del Vehículo</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Placa</label>
+            <input type="text" id="veh-placa" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 uppercase focus:outline-none focus:border-blue-600 focus:bg-white transition-all" placeholder="ABC-123" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Marca</label>
+            <input type="text" id="veh-marca" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-blue-600 focus:bg-white transition-all" placeholder="Toyota, Chevrolet..." />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Modelo</label>
+            <input type="text" id="veh-modelo" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-blue-600 focus:bg-white transition-all" placeholder="Corolla, Aveo..." />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Color</label>
+            <input type="text" id="veh-color" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-blue-600 focus:bg-white transition-all" placeholder="Blanco, Gris, Azul..." />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Año</label>
+            <input type="number" id="veh-anio" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-blue-600 focus:bg-white transition-all" placeholder="2018" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Nro. de Título / Registro</label>
+            <input type="text" id="veh-titulo" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-blue-600 focus:bg-white transition-all" placeholder="Número de título del carro" />
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" id="btn-guardar" class="w-full bg-blue-600 text-white font-bold py-3.5 rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/25 text-base">
+        Guardar Datos y Enviar a Revisión 🚀
+      </button>
+
+    </form>
+
+    <div id="status-message" class="mt-4 p-3 rounded-xl text-sm text-center hidden font-medium"></div>
+
+  </div>
+
+  <script src="js/registro_conductor.js"></script>
+</body>
+</html>
