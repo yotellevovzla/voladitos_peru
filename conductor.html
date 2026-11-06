@@ -29,8 +29,12 @@
       </div>
     </div>
 
-    <div class="flex items-center space-x-3">
-      <span id="user-name" class="hidden sm:inline text-xs font-bold text-slate-700">Cargando...</span>
+    <!-- Contenedor de Datos del Conductor -->
+    <div class="flex items-center space-x-4">
+      <div class="hidden sm:flex flex-col text-right">
+        <span id="user-name" class="text-xs font-bold text-slate-800">Cargando...</span>
+        <span id="user-cedula" class="text-[10px] font-semibold text-blue-600">Cédula: ...</span>
+      </div>
       <button onclick="logout()" class="text-xs bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-600 font-bold px-3.5 py-2.5 rounded-xl transition-all border border-slate-200">
         Salir
       </button>
