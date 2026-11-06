@@ -5,13 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Voladitos - Conductor</title>
 
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- Supabase JS CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <!-- Leaflet CSS y JS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
@@ -19,16 +14,16 @@
     #map { height: calc(100vh - 73px); width: 100%; }
   </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col">
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
 
-  <header class="bg-slate-800 border-b border-slate-700 px-6 py-4 flex items-center justify-between">
+  <header class="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between shadow-xs">
     <div class="flex items-center space-x-2">
       <span class="text-2xl">🚕</span>
-      <h1 class="text-xl font-bold text-amber-400">Voladitos Driver</h1>
+      <h1 class="text-xl font-extrabold text-blue-700 tracking-tight">Voladitos Driver</h1>
     </div>
     <div class="flex items-center space-x-4">
-      <span id="user-name" class="text-sm font-medium text-slate-300">Cargando...</span>
-      <button onclick="logout()" class="text-xs bg-red-600 hover:bg-red-500 text-white font-semibold px-3 py-1.5 rounded-lg transition-all">
+      <span id="user-name" class="text-sm font-semibold text-slate-600">Cargando...</span>
+      <button onclick="logout()" class="text-xs bg-red-50 hover:bg-red-100 text-red-600 font-bold px-3.5 py-2 rounded-xl transition-all border border-red-200">
         Cerrar Sesión
       </button>
     </div>
@@ -37,12 +32,11 @@
   <div class="relative flex-1">
     <div id="map"></div>
 
-    <!-- Lista de Viajes Disponibles en Tiempo Real -->
-    <div class="absolute bottom-6 left-1/2 -translate-x-1/2 w-11/12 max-w-lg bg-slate-800/95 backdrop-blur-md p-6 rounded-2xl border border-slate-700 shadow-2xl z-[1000]">
-      <h2 class="text-lg font-bold text-amber-400 mb-3">Solicitudes de Viajes Cercanos</h2>
+    <div class="absolute bottom-6 left-1/2 -translate-x-1/2 w-11/12 max-w-lg bg-white/95 backdrop-blur-md p-6 rounded-3xl border border-slate-200 shadow-2xl z-[1000]">
+      <h2 class="text-lg font-bold text-slate-900 mb-3">Solicitudes de Viajes Cercanos</h2>
       
-      <div id="lista-viajes" class="space-y-3 max-h-60 overflow-y-auto">
-        <p class="text-sm text-slate-400 text-center py-4">Esperando nuevas solicitudes de pasajeros...</p>
+      <div id="lista-viajes" class="space-y-3 max-h-60 overflow-y-auto pr-1">
+        <p class="text-sm text-slate-400 text-center py-4 font-medium">Esperando nuevas solicitudes de pasajeros...</p>
       </div>
     </div>
   </div>
