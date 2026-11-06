@@ -2,7 +2,41 @@
 const SUPABASE_URL = "https://gklquvthucityzgcamao.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_-p-YL6bWXAQGTddkmm9_mA_HgKlR_eM";
 
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let supabaseClient = null;
+
+// Esperar a que el DOM esté completamente cargado
+window.addEventListener('DOMContentLoaded', () => {
+  // Inicializar cliente Supabase
+  if (window.supabase) {
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  } else {
+    console.error("Supabase SDK no se ha cargado correctamente.");
+  }
+
+  // Capturar botones y formularios
+  const btnTabLogin = document.getElementById('btn-tab-login');
+  const btnTabRegister = document.getElementById('btn-tab-register');
+  const formLogin = document.getElementById('form-login');
+  const formRegister = document.getElementById('form-register');
+
+  // Eventos de Pestañas
+  if (btnTabLogin) {
+    btnTabLogin.addEventListener('click', () => switchTab('login'));
+  }
+  
+  if (btnTabRegister) {
+    btnTabRegister.addEventListener('click', () => switchTab('register'));
+  }
+
+  // Eventos de Formularios
+  if (formLogin) {
+    formLogin.addEventListener('submit', handleLogin);
+  }
+
+  if (formRegister) {
+    formRegister.addEventListener('submit', handleRegister);
+  }
+});
 
 // CAMBIO DE PESTAÑAS (LOGIN / REGISTRO)
 function switchTab(tab) {
@@ -15,13 +49,13 @@ function switchTab(tab) {
   if (tab === 'login') {
     formLogin.classList.remove('hidden');
     formRegister.classList.add('hidden');
-    btnLogin.className = "flex-1 py-2 text-sm font-semibold rounded-md bg-amber-400 text-slate-900 transition-all";
-    btnRegister.className = "flex-1 py-2 text-sm font-semibold rounded-md text-slate-400 hover:text-slate-200 transition-all";
+    btnLogin.className = "flex-1 py-2 text-sm font-semibold rounded-lg bg-blue-600 text-white shadow-sm transition-all";
+    btnRegister.className = "flex-1 py-2 text-sm font-semibold rounded-lg text-slate-600 hover:text-slate-900 transition-all";
   } else {
     formRegister.classList.remove('hidden');
     formLogin.classList.add('hidden');
-    btnRegister.className = "flex-1 py-2 text-sm font-semibold rounded-md bg-amber-400 text-slate-900 transition-all";
-    btnLogin.className = "flex-1 py-2 text-sm font-semibold rounded-md text-slate-400 hover:text-slate-200 transition-all";
+    btnRegister.className = "flex-1 py-2 text-sm font-semibold rounded-lg bg-blue-600 text-white shadow-sm transition-all";
+    btnLogin.className = "flex-1 py-2 text-sm font-semibold rounded-lg text-slate-600 hover:text-slate-900 transition-all";
   }
 }
 
@@ -35,7 +69,7 @@ async function handleRegister(event) {
   const password = document.getElementById('reg-password').value;
   const role = document.querySelector('input[name="role"]:checked').value;
 
-  const { data, error } = await supabase.auth.signUp({
+  const { data, error } = await supabaseClient.auth.signUp({
     email: email,
     password: password,
     options: {
@@ -63,7 +97,7 @@ async function handleLogin(event) {
   const email = document.getElementById('login-email').value;
   const password = document.getElementById('login-password').value;
 
-  const { data, error } = await supabase.auth.signInWithPassword({
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
     email: email,
     password: password
   });
@@ -73,7 +107,7 @@ async function handleLogin(event) {
     return;
   }
 
-  const { data: perfil } = await supabase
+  const { data: perfil } = await supabaseClient
     .from('perfiles')
     .select('rol')
     .eq('id', data.user.id)
@@ -94,14 +128,14 @@ async function handleLogin(event) {
 
 function showMessage(msg, type) {
   const box = document.getElementById('status-message');
-  box.classList.remove('hidden', 'bg-red-900/50', 'text-red-300', 'bg-green-900/50', 'text-green-300', 'bg-slate-700', 'text-slate-200');
+  box.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700', 'bg-slate-100', 'text-slate-700');
   
   if (type === 'error') {
-    box.classList.add('bg-red-900/50', 'text-red-300');
+    box.classList.add('bg-red-100', 'text-red-700');
   } else if (type === 'success') {
-    box.classList.add('bg-green-900/50', 'text-green-300');
+    box.classList.add('bg-green-100', 'text-green-700');
   } else {
-    box.classList.add('bg-slate-700', 'text-slate-200');
+    box.classList.add('bg-slate-100', 'text-slate-700');
   }
   box.innerText = msg;
 }
