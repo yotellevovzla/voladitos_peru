@@ -5,13 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Voladitos - Pasajero</title>
 
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- Supabase JS CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <!-- Leaflet CSS y JS (Mapa) -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
@@ -19,55 +14,50 @@
     #map { height: calc(100vh - 73px); width: 100%; }
   </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col">
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
 
-  <!-- Encabezado -->
-  <header class="bg-slate-800 border-b border-slate-700 px-6 py-4 flex items-center justify-between">
+  <!-- Header claro -->
+  <header class="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between shadow-xs">
     <div class="flex items-center space-x-2">
       <span class="text-2xl">🚗💨</span>
-      <h1 class="text-xl font-bold text-amber-400">Voladitos</h1>
+      <h1 class="text-xl font-extrabold text-blue-700 tracking-tight">Voladitos</h1>
     </div>
     <div class="flex items-center space-x-4">
-      <span id="user-name" class="text-sm font-medium text-slate-300">Cargando...</span>
-      <button onclick="logout()" class="text-xs bg-red-600 hover:bg-red-500 text-white font-semibold px-3 py-1.5 rounded-lg transition-all">
+      <span id="user-name" class="text-sm font-semibold text-slate-600">Cargando...</span>
+      <button onclick="logout()" class="text-xs bg-red-50 hover:bg-red-100 text-red-600 font-bold px-3.5 py-2 rounded-xl transition-all border border-red-200">
         Cerrar Sesión
       </button>
     </div>
   </header>
 
-  <!-- Panel del Mapa y Solicitud -->
   <div class="relative flex-1">
-    
-    <!-- Mapa interactivo -->
     <div id="map"></div>
 
-    <!-- Panel flotante para pedir viaje -->
-    <div class="absolute bottom-6 left-1/2 -translate-x-1/2 w-11/12 max-w-lg bg-slate-800/95 backdrop-blur-md p-6 rounded-2xl border border-slate-700 shadow-2xl z-[1000]">
-      <h2 class="text-lg font-bold text-amber-400 mb-3">¿A dónde vamos hoy?</h2>
+    <!-- Panel Flotante -->
+    <div class="absolute bottom-6 left-1/2 -translate-x-1/2 w-11/12 max-w-lg bg-white/95 backdrop-blur-md p-6 rounded-3xl border border-slate-200 shadow-2xl z-[1000]">
+      <h2 class="text-lg font-bold text-slate-900 mb-3">¿A dónde vamos hoy?</h2>
       
       <div class="space-y-3">
         <div>
-          <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Origen</label>
-          <input type="text" id="origen-txt" readonly value="Detectando GPS..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-amber-300 font-medium" />
+          <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Origen</label>
+          <input type="text" id="origen-txt" readonly value="Detectando GPS..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-blue-700 font-semibold" />
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Destino</label>
-          <input type="text" id="destino-txt" placeholder="Escribe tu dirección de destino..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-amber-400" />
+          <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Destino</label>
+          <input type="text" id="destino-txt" placeholder="Escribe tu dirección de destino..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-blue-600 focus:bg-white transition-all" />
         </div>
 
-        <!-- Estado del viaje en progreso -->
-        <div id="estado-viaje-box" class="hidden p-3 bg-slate-900 rounded-lg border border-amber-400/30 text-center">
-          <span class="text-xs text-slate-400 block uppercase">Estado del Viaje</span>
-          <span id="estado-viaje-texto" class="text-sm font-bold text-amber-400">Buscando conductor...</span>
+        <div id="estado-viaje-box" class="hidden p-3.5 bg-blue-50 rounded-xl border border-blue-200 text-center">
+          <span class="text-xs text-blue-600 font-bold block uppercase">Estado del Viaje</span>
+          <span id="estado-viaje-texto" class="text-sm font-extrabold text-blue-800">Buscando conductor...</span>
         </div>
 
-        <button id="btn-solicitar" onclick="solicitarViaje()" class="w-full bg-amber-400 text-slate-900 font-bold py-3 rounded-xl hover:bg-amber-300 transition-all shadow-lg shadow-amber-400/20 text-base mt-2">
+        <button id="btn-solicitar" onclick="solicitarViaje()" class="w-full bg-blue-600 text-white font-bold py-3.5 rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/25 text-base mt-2">
           Pedir un Voladito 🚀
         </button>
       </div>
     </div>
-
   </div>
 
   <script src="js/pasajero.js"></script>
