@@ -4,22 +4,18 @@ const SUPABASE_ANON_KEY = "sb_publishable_-p-YL6bWXAQGTddkmm9_mA_HgKlR_eM";
 
 let supabaseClient = null;
 
-// Esperar a que el DOM esté completamente cargado
 window.addEventListener('DOMContentLoaded', () => {
-  // Inicializar cliente Supabase
-  if (window.supabase) {
+  if (window.supabase && window.supabase.createClient) {
     supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   } else {
     console.error("Supabase SDK no se ha cargado correctamente.");
   }
 
-  // Capturar botones y formularios
   const btnTabLogin = document.getElementById('btn-tab-login');
   const btnTabRegister = document.getElementById('btn-tab-register');
   const formLogin = document.getElementById('form-login');
   const formRegister = document.getElementById('form-register');
 
-  // Eventos de Pestañas
   if (btnTabLogin) {
     btnTabLogin.addEventListener('click', () => switchTab('login'));
   }
@@ -28,7 +24,6 @@ window.addEventListener('DOMContentLoaded', () => {
     btnTabRegister.addEventListener('click', () => switchTab('register'));
   }
 
-  // Eventos de Formularios
   if (formLogin) {
     formLogin.addEventListener('submit', handleLogin);
   }
@@ -38,7 +33,6 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// CAMBIO DE PESTAÑAS (LOGIN / REGISTRO)
 function switchTab(tab) {
   const formLogin = document.getElementById('form-login');
   const formRegister = document.getElementById('form-register');
@@ -52,6 +46,8 @@ function switchTab(tab) {
     btnLogin.className = "flex-1 py-2 text-sm font-semibold rounded-lg bg-blue-600 text-white shadow-sm transition-all";
     btnRegister.className = "flex-1 py-2 text-sm font-semibold rounded-lg text-slate-600 hover:text-slate-900 transition-all";
   } else {
+    formRegister.classList.add('hidden'); // Registro directo bloqueado temporalmente o redirigido
+    // Nota: Si prefieres registro directo en esta misma pantalla o quieres enviarlos al formulario de conductor:
     formRegister.classList.remove('hidden');
     formLogin.classList.add('hidden');
     btnRegister.className = "flex-1 py-2 text-sm font-semibold rounded-lg bg-blue-600 text-white shadow-sm transition-all";
@@ -59,7 +55,6 @@ function switchTab(tab) {
   }
 }
 
-// MANEJO DE REGISTRO
 async function handleRegister(event) {
   event.preventDefault();
   showMessage('Registrando usuario en Voladitos...', 'info');
@@ -86,10 +81,20 @@ async function handleRegister(event) {
   }
 
   showMessage('¡Registro exitoso! Ya puedes iniciar sesión.', 'success');
-  switchTab('login');
+  
+  // Si se registró como conductor, lo mandamos directo a llenar su formulario de vehículo
+  if (role === 'conductor') {
+    // Auto iniciamos sesión o redirigimos tras un breve aviso
+    setTimeout(() => {
+      supabaseClient.auth.signInWithPassword({ email, password }).then(() => {
+        window.location.href = 'registro_conductor.html';
+      });
+    }, 1200);
+  } else {
+    setTimeout(() => switchTab('login'), 1200);
+  }
 }
 
-// MANEJO DE INICIO DE SESIÓN
 async function handleLogin(event) {
   event.preventDefault();
   showMessage('Iniciando sesión...', 'info');
@@ -107,9 +112,10 @@ async function handleLogin(event) {
     return;
   }
 
+  // Consultar perfil y datos del vehículo para saber a dónde redirigir
   const { data: perfil } = await supabaseClient
     .from('perfiles')
-    .select('rol')
+    .select('rol, cedula, vehiculo_placa')
     .eq('id', data.user.id)
     .single();
 
@@ -119,7 +125,12 @@ async function handleLogin(event) {
 
   setTimeout(() => {
     if (rol === 'conductor') {
-      window.location.href = 'conductor.html';
+      // Si es conductor pero NO ha llenado su cédula ni su placa, lo mandamos al formulario de registro completo
+      if (!perfil?.cedula || !perfil?.vehiculo_placa) {
+        window.location.href = 'registro_conductor.html';
+      } else {
+        window.location.href = 'conductor.html';
+      }
     } else {
       window.location.href = 'pasajero.html';
     }
