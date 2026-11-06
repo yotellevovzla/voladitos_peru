@@ -1,6 +1,3 @@
-// -------------------------------------------------------------
-// CONFIGURACIÓN DE SUPABASE
-// -------------------------------------------------------------
 const SUPABASE_URL = "https://gklquvthucityzgcamao.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_-p-YL6bWXAQGTddkmm9_mA_HgKlR_eM";
 
@@ -12,11 +9,7 @@ let currentLat = null;
 let currentLng = null;
 let viajeActivoId = null;
 
-// -------------------------------------------------------------
-// INICIALIZACIÓN DE SESIÓN Y MAPA
-// -------------------------------------------------------------
 window.addEventListener('DOMContentLoaded', async () => {
-  // 1. Verificar sesión activa
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
     window.location.href = 'index.html';
@@ -25,20 +18,15 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   document.getElementById('user-name').innerText = user.user_metadata?.nombre_completo || user.email;
 
-  // 2. Inicializar Mapa (Coordenadas base por defecto)
   map = L.map('map').setView([10.4806, -66.9036], 13);
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; OpenStreetMap contributors'
   }).addTo(map);
 
-  // 3. Obtener Ubicación GPS
   obtenerUbicacionActual();
 });
 
-// -------------------------------------------------------------
-// GEOLOCALIZACIÓN DEL PASAJERO
-// -------------------------------------------------------------
 function obtenerUbicacionActual() {
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
@@ -47,7 +35,6 @@ function obtenerUbicacionActual() {
         currentLng = position.coords.longitude;
 
         document.getElementById('origen-txt').value = "Ubicación Actual Detectada 📍";
-
         map.setView([currentLat, currentLng], 16);
 
         if (userMarker) {
@@ -68,9 +55,6 @@ function obtenerUbicacionActual() {
   }
 }
 
-// -------------------------------------------------------------
-// SOLICITAR UN VIAJE
-// -------------------------------------------------------------
 async function solicitarViaje() {
   const destino = document.getElementById('destino-txt').value;
   
@@ -90,7 +74,6 @@ async function solicitarViaje() {
   btnSolicitar.disabled = true;
   btnSolicitar.innerText = "Enviando solicitud...";
 
-  // Insertar en la tabla viajes
   const { data, error } = await supabase
     .from('viajes')
     .insert([
@@ -116,18 +99,13 @@ async function solicitarViaje() {
 
   viajeActivoId = data.id;
   
-  // Cambiar interfaz al estado "buscando"
   document.getElementById('estado-viaje-box').classList.remove('hidden');
   document.getElementById('estado-viaje-texto').innerText = "Buscando conductor cercano...";
   btnSolicitar.innerText = "Viaje en proceso...";
 
-  // Escuchar cambios en tiempo real para este viaje
   escucharEstadoViaje(viajeActivoId);
 }
 
-// -------------------------------------------------------------
-// ESCUCHAR EN TIEMPO REAL SI UN CONDUCTOR ACEPTA
-// -------------------------------------------------------------
 function escucharEstadoViaje(idViaje) {
   supabase
     .channel(`viaje-${idViaje}`)
@@ -157,9 +135,6 @@ function escucharEstadoViaje(idViaje) {
     .subscribe();
 }
 
-// -------------------------------------------------------------
-// CERRAR SESIÓN
-// -------------------------------------------------------------
 async function logout() {
   await supabase.auth.signOut();
   window.location.href = 'index.html';
