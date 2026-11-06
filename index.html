@@ -4,89 +4,83 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Voladitos - Iniciar Sesión</title>
-
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Supabase JS CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex items-center justify-center p-4">
+<body class="bg-slate-50 text-slate-800 min-h-screen flex items-center justify-center p-4">
 
-  <div class="w-full max-w-md bg-slate-800 rounded-2xl shadow-2xl border border-slate-700 p-8">
+  <div class="w-full max-w-md bg-white rounded-2xl shadow-xl border border-slate-100 p-8">
     
-    <!-- Encabezado con la marca Voladitos -->
+    <!-- Encabezado -->
     <div class="text-center mb-8">
-      <h1 class="text-3xl font-bold text-amber-400">Voladitos 🚗💨</h1>
-      <p class="text-sm text-slate-400 mt-2">Muévete rápido, viaja seguro</p>
+      <h1 class="text-3xl font-extrabold text-blue-700 tracking-tight">Voladitos 🚗💨</h1>
+      <p class="text-sm text-slate-500 mt-2">Muévete rápido, viaja seguro con estilo</p>
     </div>
 
-    <!-- Pestañas de Login / Registro -->
-    <div class="flex bg-slate-900 rounded-lg p-1 mb-6 border border-slate-700">
-      <button id="btn-tab-login" onclick="switchTab('login')" class="flex-1 py-2 text-sm font-semibold rounded-md bg-amber-400 text-slate-900 transition-all">
+    <!-- Pestañas -->
+    <div class="flex bg-slate-100 rounded-xl p-1 mb-6 border border-slate-200">
+      <button id="btn-tab-login" onclick="switchTab('login')" class="flex-1 py-2 text-sm font-semibold rounded-lg bg-blue-600 text-white shadow-sm transition-all">
         Iniciar Sesión
       </button>
-      <button id="btn-tab-register" onclick="switchTab('register')" class="flex-1 py-2 text-sm font-semibold rounded-md text-slate-400 hover:text-slate-200 transition-all">
+      <button id="btn-tab-register" onclick="switchTab('register')" class="flex-1 py-2 text-sm font-semibold rounded-lg text-slate-600 hover:text-slate-900 transition-all">
         Registrarse
       </button>
     </div>
 
-    <!-- Formulario de Iniciar Sesión -->
+    <!-- Formulario Login -->
     <form id="form-login" onsubmit="handleLogin(event)" class="space-y-4">
       <div>
-        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Correo Electrónico</label>
-        <input type="email" id="login-email" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-slate-100 focus:outline-none focus:border-amber-400" placeholder="tu@email.com" />
+        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Correo Electrónico</label>
+        <input type="email" id="login-email" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 focus:outline-none focus:border-blue-600 focus:bg-white transition-all" placeholder="tu@email.com" />
       </div>
 
       <div>
-        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Contraseña</label>
-        <input type="password" id="login-password" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-slate-100 focus:outline-none focus:border-amber-400" placeholder="••••••••" />
+        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Contraseña</label>
+        <input type="password" id="login-password" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 focus:outline-none focus:border-blue-600 focus:bg-white transition-all" placeholder="••••••••" />
       </div>
 
-      <button type="submit" class="w-full bg-amber-400 text-slate-900 font-bold py-3 rounded-lg hover:bg-amber-300 transition-all shadow-lg shadow-amber-400/20">
-        Entrar
+      <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20">
+        Entrar a Voladitos
       </button>
     </form>
 
-    <!-- Formulario de Registro -->
+    <!-- Formulario Registro -->
     <form id="form-register" onsubmit="handleRegister(event)" class="space-y-4 hidden">
       <div>
-        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Nombre Completo</label>
-        <input type="text" id="reg-name" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-slate-100 focus:outline-none focus:border-amber-400" placeholder="Carlos Pérez" />
+        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Nombre Completo</label>
+        <input type="text" id="reg-name" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 focus:outline-none focus:border-blue-600 focus:bg-white transition-all" placeholder="Carlos Pérez" />
       </div>
 
       <div>
-        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Correo Electrónico</label>
-        <input type="email" id="reg-email" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-slate-100 focus:outline-none focus:border-amber-400" placeholder="tu@email.com" />
+        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Correo Electrónico</label>
+        <input type="email" id="reg-email" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 focus:outline-none focus:border-blue-600 focus:bg-white transition-all" placeholder="tu@email.com" />
       </div>
 
       <div>
-        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Contraseña</label>
-        <input type="password" id="reg-password" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-slate-100 focus:outline-none focus:border-amber-400" placeholder="••••••••" />
+        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Contraseña</label>
+        <input type="password" id="reg-password" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 focus:outline-none focus:border-blue-600 focus:bg-white transition-all" placeholder="••••••••" />
       </div>
 
-      <!-- Selección de Rol -->
       <div>
-        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Quiero registrarme como:</label>
+        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Quiero registrarme como:</label>
         <div class="grid grid-cols-2 gap-3">
-          <label class="flex items-center justify-center p-3 border border-slate-700 rounded-lg bg-slate-900 cursor-pointer hover:border-amber-400">
-            <input type="radio" name="role" value="pasajero" checked class="accent-amber-400 mr-2" />
-            <span class="text-sm font-medium">Pasajero</span>
+          <label class="flex items-center justify-center p-3 border border-slate-200 rounded-xl bg-slate-50 cursor-pointer hover:border-blue-600 hover:bg-blue-50/50 transition-all">
+            <input type="radio" name="role" value="pasajero" checked class="accent-blue-600 mr-2" />
+            <span class="text-sm font-semibold text-slate-700">Pasajero</span>
           </label>
-          <label class="flex items-center justify-center p-3 border border-slate-700 rounded-lg bg-slate-900 cursor-pointer hover:border-amber-400">
-            <input type="radio" name="role" value="conductor" class="accent-amber-400 mr-2" />
-            <span class="text-sm font-medium">Conductor</span>
+          <label class="flex items-center justify-center p-3 border border-slate-200 rounded-xl bg-slate-50 cursor-pointer hover:border-blue-600 hover:bg-blue-50/50 transition-all">
+            <input type="radio" name="role" value="conductor" class="accent-blue-600 mr-2" />
+            <span class="text-sm font-semibold text-slate-700">Conductor</span>
           </label>
         </div>
       </div>
 
-      <button type="submit" class="w-full bg-amber-400 text-slate-900 font-bold py-3 rounded-lg hover:bg-amber-300 transition-all shadow-lg shadow-amber-400/20">
+      <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20">
         Crear Cuenta
       </button>
     </form>
 
-    <!-- Caja de Notificaciones / Errores -->
-    <div id="status-message" class="mt-4 p-3 rounded-lg text-sm text-center hidden"></div>
+    <div id="status-message" class="mt-4 p-3 rounded-xl text-sm text-center hidden font-medium"></div>
 
   </div>
 
