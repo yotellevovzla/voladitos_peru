@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Voladitos - Iniciar Sesión</title>
+
+  <!-- 1. Cargar Tailwind CSS desde CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- 2. Cargar SDK de Supabase JS desde CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex items-center justify-center p-4">
+
+  <div class="w-full max-w-md bg-slate-800 rounded-2xl shadow-2xl border border-slate-700 p-8">
+    
+    <!-- Encabezado con la marca Voladitos -->
+    <div class="text-center mb-8">
+      <h1 class="text-3xl font-bold text-amber-400">Voladitos 🚗💨</h1>
+      <p class="text-sm text-slate-400 mt-2">Muévete rápido, viaja seguro</p>
+    </div>
+
+    <!-- Pestañas de Login / Registro -->
+    <div class="flex bg-slate-900 rounded-lg p-1 mb-6 border border-slate-700">
+      <button id="btn-tab-login" onclick="switchTab('login')" class="flex-1 py-2 text-sm font-semibold rounded-md bg-amber-400 text-slate-900 transition-all">
+        Iniciar Sesión
+      </button>
+      <button id="btn-tab-register" onclick="switchTab('register')" class="flex-1 py-2 text-sm font-semibold rounded-md text-slate-400 hover:text-slate-200 transition-all">
+        Registrarse
+      </button>
+    </div>
+
+    <!-- Formulario de Iniciar Sesión -->
+    <form id="form-login" onsubmit="handleLogin(event)" class="space-y-4">
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Correo Electrónico</label>
+        <input type="email" id="login-email" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-slate-100 focus:outline-none focus:border-amber-400" placeholder="tu@email.com" />
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Contraseña</label>
+        <input type="password" id="login-password" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-slate-100 focus:outline-none focus:border-amber-400" placeholder="••••••••" />
+      </div>
+
+      <button type="submit" class="w-full bg-amber-400 text-slate-900 font-bold py-3 rounded-lg hover:bg-amber-300 transition-all shadow-lg shadow-amber-400/20">
+        Entrar
+      </button>
+    </form>
+
+    <!-- Formulario de Registro -->
+    <form id="form-register" onsubmit="handleRegister(event)" class="space-y-4 hidden">
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Nombre Completo</label>
+        <input type="text" id="reg-name" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-slate-100 focus:outline-none focus:border-amber-400" placeholder="Carlos Pérez" />
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Correo Electrónico</label>
+        <input type="email" id="reg-email" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-slate-100 focus:outline-none focus:border-amber-400" placeholder="tu@email.com" />
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Contraseña</label>
+        <input type="password" id="reg-password" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-slate-100 focus:outline-none focus:border-amber-400" placeholder="••••••••" />
+      </div>
+
+      <!-- Selección de Rol -->
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Quiero registrarme como:</label>
+        <div class="grid grid-cols-2 gap-3">
+          <label class="flex items-center justify-center p-3 border border-slate-700 rounded-lg bg-slate-900 cursor-pointer hover:border-amber-400">
+            <input type="radio" name="role" value="pasajero" checked class="accent-amber-400 mr-2" />
+            <span class="text-sm font-medium">Pasajero</span>
+          </label>
+          <label class="flex items-center justify-center p-3 border border-slate-700 rounded-lg bg-slate-900 cursor-pointer hover:border-amber-400">
+            <input type="radio" name="role" value="conductor" class="accent-amber-400 mr-2" />
+            <span class="text-sm font-medium">Conductor</span>
+          </label>
+        </div>
+      </div>
+
+      <button type="submit" class="w-full bg-amber-400 text-slate-900 font-bold py-3 rounded-lg hover:bg-amber-300 transition-all shadow-lg shadow-amber-400/20">
+        Crear Cuenta
+      </button>
+    </form>
+
+    <!-- Caja de Notificaciones / Errores -->
+    <div id="status-message" class="mt-4 p-3 rounded-lg text-sm text-center hidden"></div>
+
+  </div>
+
+  <script>
+    // -------------------------------------------------------------
+    // CONFIGURACIÓN DE SUPABASE
+    // Reemplaza con tus credenciales de la consola de Supabase
+    // -------------------------------------------------------------
+    const SUPABASE_URL = "https://TU_PROYECTO.supabase.co";
+    const SUPABASE_ANON_KEY = "TU_LLAVE_ANONIMA";
+
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // -------------------------------------------------------------
+    // INTERACTIVIDAD DE PESTAÑAS (UI)
+    // -------------------------------------------------------------
+    function switchTab(tab) {
+      const formLogin = document.getElementById('form-login');
+      const formRegister = document.getElementById('form-register');
+      const btnLogin = document.getElementById('btn-tab-login');
+      const btnRegister = document.getElementById('btn-tab-register');
+      hideMessage();
+
+      if (tab === 'login') {
+        formLogin.classList.remove('hidden');
+        formRegister.classList.add('hidden');
+        btnLogin.className = "flex-1 py-2 text-sm font-semibold rounded-md bg-amber-400 text-slate-900 transition-all";
+        btnRegister.className = "flex-1 py-2 text-sm font-semibold rounded-md text-slate-400 hover:text-slate-200 transition-all";
+      } else {
+        formRegister.classList.remove('hidden');
+        formLogin.classList.add('hidden');
+        btnRegister.className = "flex-1 py-2 text-sm font-semibold rounded-md bg-amber-400 text-slate-900 transition-all";
+        btnLogin.className = "flex-1 py-2 text-sm font-semibold rounded-md text-slate-400 hover:text-slate-200 transition-all";
+      }
+    }
+
+    // -------------------------------------------------------------
+    // MANEJO DE REGISTRO
+    // -------------------------------------------------------------
+    async function handleRegister(event) {
+      event.preventDefault();
+      showMessage('Registrando usuario en Voladitos...', 'info');
+
+      const name = document.getElementById('reg-name').value;
+      const email = document.getElementById('reg-email').value;
+      const password = document.getElementById('reg-password').value;
+      const role = document.querySelector('input[name="role"]:checked').value;
+
+      // 1. Crear el usuario en Auth de Supabase (el trigger SQL creará su perfil automáticamente)
+      const { data, error } = await supabase.auth.signUp({
+        email: email,
+        password: password,
+        options: {
+          data: {
+            nombre_completo: name,
+            rol: role
+          }
+        }
+      });
+
+      if (error) {
+        showMessage(error.message, 'error');
+        return;
+      }
+
+      showMessage('¡Registro exitoso! Ya puedes iniciar sesión.', 'success');
+      switchTab('login');
+    }
+
+    // -------------------------------------------------------------
+    // MANEJO DE INICIO DE SESIÓN
+    // -------------------------------------------------------------
+    async function handleLogin(event) {
+      event.preventDefault();
+      showMessage('Iniciando sesión...', 'info');
+
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password
+      });
+
+      if (error) {
+        showMessage(error.message, 'error');
+        return;
+      }
+
+      // Consultar el rol directamente de nuestra tabla "perfiles" para mayor seguridad
+      const { data: perfil, error: perfilError } = await supabase
+        .from('perfiles')
+        .select('rol, nombre_completo')
+        .eq('id', data.user.id)
+        .single();
+
+      const rol = perfil ? perfil.rol : (data.user.user_metadata?.rol || 'pasajero');
+      
+      showMessage(`Bienvenido a Voladitos. Redirigiendo...`, 'success');
+
+      // Redirección según rol tras iniciar sesión
+      setTimeout(() => {
+        if (rol === 'conductor') {
+          window.location.href = 'conductor.html';
+        } else {
+          window.location.href = 'pasajero.html';
+        }
+      }, 1200);
+    }
+
+    // Auxiliar para mostrar mensajes en pantalla
+    function showMessage(msg, type) {
+      const box = document.getElementById('status-message');
+      box.classList.remove('hidden', 'bg-red-900/50', 'text-red-300', 'bg-green-900/50', 'text-green-300', 'bg-slate-700', 'text-slate-200');
+      
+      if (type === 'error') {
+        box.classList.add('bg-red-900/50', 'text-red-300');
+      } else if (type === 'success') {
+        box.classList.add('bg-green-900/50', 'text-green-300');
+      } else {
+        box.classList.add('bg-slate-700', 'text-slate-200');
+      }
+      box.innerText = msg;
+    }
+
+    function hideMessage() {
+      document.getElementById('status-message').classList.add('hidden');
+    }
+  </script>
+</body>
+</html>
