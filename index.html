@@ -143,7 +143,7 @@
 
   <script src="./js/index.js"></script>
   <script>
-    let deferredPrompt;
+    let deferredPrompt = null;
     const overlay = document.getElementById('pwa-install-overlay');
     const appContent = document.getElementById('app-content');
     const btnInstall = document.getElementById('btn-pwa-install');
@@ -167,33 +167,61 @@
 
     window.addEventListener('DOMContentLoaded', checkPWAState);
 
+    // Captura prioritaria del evento nativo
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
+      console.log('✅ Evento PWA listo.');
+      
+      // Actualizar estilo del botón para indicar que el instalador nativo está listo
+      if (btnInstall) {
+        btnInstall.classList.remove('opacity-75');
+        btnInstall.innerText = 'Instalar Aplicación Oficial 🚀';
+      }
     });
 
     btnInstall.addEventListener('click', async () => {
+      // 1. Si tenemos el evento capturado, lanzamos el cartel flotante nativo del SO
       if (deferredPrompt) {
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') console.log('PWA Instalada');
+        if (outcome === 'accepted') {
+          console.log('PWA Instalada');
+          overlay.classList.add('hidden');
+          appContent.classList.remove('hidden');
+        }
         deferredPrompt = null;
-      } else {
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-        if (isIOS) {
-          iosInstructions.classList.remove('hidden');
-        } else {
-          alert("Abre el menú de tu navegador y presiona 'Añadir a la pantalla de inicio'.");
+        return;
+      }
+
+      // 2. Si es iOS (iPhone/iPad), mostramos los pasos específicos de Safari
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      if (isIOS) {
+        iosInstructions.classList.remove('hidden');
+        return;
+      }
+
+      // 3. Si en Android el evento no ha saltado, forzamos la comprobación del Service Worker
+      if ('serviceWorker' in navigator) {
+        const reg = await navigator.serviceWorker.getRegistration();
+        if (!reg) {
+          await navigator.serviceWorker.register('./sw.js');
         }
       }
+
+      // Alerta informativa en caso de que el navegador mantenga bloqueado el prompt automático
+      alert("Tu navegador está preparando el instalador. Si no aparece el aviso en unos segundos, toca los tres puntos (⋮) de Chrome y selecciona 'Agregar a la pantalla principal'.");
     });
 
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch(err => console.error('SW Error:', err));
+        navigator.serviceWorker.register('./sw.js')
+          .then(r => console.log('SW activo:', r.scope))
+          .catch(e => console.error('SW error:', e));
       });
     }
 
+    // Bloqueo de inspección de código
     document.addEventListener('contextmenu', e => e.preventDefault());
     document.addEventListener('keydown', e => {
       if (
