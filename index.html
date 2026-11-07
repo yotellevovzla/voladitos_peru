@@ -143,11 +143,18 @@
 
   <script src="./js/index.js"></script>
   <script>
-    let deferredPrompt;
+    let deferredPrompt = null;
     const overlay = document.getElementById('pwa-install-overlay');
     const appContent = document.getElementById('app-content');
     const btnInstall = document.getElementById('btn-pwa-install');
     const iosInstructions = document.getElementById('ios-instructions');
+
+    // Escuchar e interceptar el evento nativo del navegador lo antes posible
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      console.log('✅ Banner de instalación PWA listo para ejecutarse.');
+    });
 
     function isRunningStandalone() {
       return (window.matchMedia('(display-mode: standalone)').matches) || 
@@ -167,20 +174,14 @@
 
     window.addEventListener('DOMContentLoaded', checkPWAState);
 
-    // Capturar el evento nativo del navegador
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      console.log("Evento beforeinstallprompt listo.");
-    });
-
-    // Acción del botón para forzar el instalador
+    // Click en el botón de instalación
     btnInstall.addEventListener('click', async () => {
       if (deferredPrompt) {
+        // Ejecuta la ventana emergente oficial del sistema operativo (Android / Chrome)
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
         if (outcome === 'accepted') {
-          console.log('El usuario aceptó instalar la PWA');
+          console.log('El usuario aceptó la instalación.');
           overlay.classList.add('hidden');
           appContent.classList.remove('hidden');
         }
@@ -190,17 +191,21 @@
         if (isIOS) {
           iosInstructions.classList.remove('hidden');
         } else {
-          alert("Para instalar la aplicación, abre el menú de tu navegador (los tres puntos ⠇ en la esquina superior) y selecciona 'Instalar aplicación' o 'Agregar a la pantalla principal'.");
+          alert("El navegador aún está validando los archivos de la app. Si no salta la ventana emergente, toca el menú de opciones de Chrome (⋮) y selecciona 'Instalar aplicación'.");
         }
       }
     });
 
+    // Registrar el Service Worker inmediatamente
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch(err => console.error('SW Error:', err));
+        navigator.serviceWorker.register('./sw.js')
+          .then(reg => console.log('SW registrado con éxito:', reg.scope))
+          .catch(err => console.error('Error al registrar SW:', err));
       });
     }
 
+    // Anti-inspección de código
     document.addEventListener('contextmenu', e => e.preventDefault());
     document.addEventListener('keydown', e => {
       if (
