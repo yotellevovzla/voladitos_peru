@@ -1,50 +1,41 @@
 const CACHE_NAME = 'voladitos-v1';
-const ASSETS_TO_CACHE = [
-  './',
+const assetsToCache = [
   './index.html',
-  './pasajero.html',
-  './conductor.html',
-  './registro_conductor.html',
-  './admin.html',
-  './js/index.js',
-  './js/pasajero.js',
-  './js/conductor.js',
-  './js/registro_conductor.js',
-  './js/admin.js',
   './manifest.json'
 ];
 
+// Instalación del Service Worker
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE);
-    })
+    caches.open(CACHE_NAME)
+      .then((cache) => {
+        return cache.addAll(assetsToCache);
+      })
+      .then(() => self.skipWaiting())
   );
-  self.skipWaiting();
 });
 
+// Activación y limpieza de cachés antiguas
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keys) => {
+    caches.keys().then((cacheNames) => {
       return Promise.all(
-        keys.map((key) => {
-          if (key !== CACHE_NAME) {
-            return caches.delete(key);
+        cacheNames.map((cacheName) => {
+          if (cacheName !== CACHE_NAME) {
+            return caches.delete(cacheName);
           }
         })
       );
-    })
+    }).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
+// CRÍTICO: El evento fetch es obligatorio para que Chrome permita instalar la PWA
 self.addEventListener('fetch', (event) => {
-  if (event.request.url.includes('supabase.co')) {
-    return; // Ignorar peticiones de la API de Supabase para que vayan directo a la red
-  }
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      return cachedResponse || fetch(event.request);
-    })
+    caches.match(event.request)
+      .then((response) => {
+        return response || fetch(event.request);
+      })
   );
 });
